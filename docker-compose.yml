@@ -1,0 +1,44 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: encodebot
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env
+    environment:
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/VideoEncoder}
+      DOWNLOAD_DIR: /app/downloads
+      ENCODE_DIR: /app/encode
+      SESSION_NAME: /app/sessions/VideoEncoder
+      TZ: ${TZ:-Asia/Dhaka}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - bot_downloads:/app/downloads
+      - bot_encode:/app/encode
+      - bot_sessions:/app/sessions
+    # FFmpeg jobs can need substantial CPU/RAM; tune limits for your host.
+
+  mongo:
+    image: mongo:7
+    container_name: encodebot-mongo
+    restart: unless-stopped
+    command: ["mongod", "--bind_ip_all"]
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  bot_downloads:
+  bot_encode:
+  bot_sessions:
+  mongo_data:

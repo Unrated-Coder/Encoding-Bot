@@ -1,0 +1,14 @@
+.git
+.gitignore
+.env
+.env.*
+config.env
+**/*.session
+**/*.session-journal
+downloads
+encode
+__pycache__
+**/__pycache__
+*.pyc
+.venv
+venv

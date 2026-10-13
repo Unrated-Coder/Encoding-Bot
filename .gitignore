@@ -1,0 +1,49 @@
+# Environment Files
+config.env
+.env
+
+# Pyrogram Session Files
+*.session
+*.session-journal
+*.session-shm
+*.session-wal
+
+# Temporary / Output Directories
+VideoEncoder/downloads/
+VideoEncoder/encodes/
+VideoEncoder/utils/extras/logs.txt
+
+# Database and Cache Files
+*.sqlite
+.lk21-requests-cache*
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+.env_venv/
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+
+# Build and Distribution Directories
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
