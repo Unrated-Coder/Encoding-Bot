@@ -37,6 +37,32 @@ class TestUserLogic(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("(1)", formatted_collision)
         self.assertEqual(formatted_collision, "Cats Eye (2025) HDRip.mkv")
 
+        # Test source quality / rip tag replacement (e.g. HDRip -> 1080p)
+        formatted_hdrip = format_renamed_file(
+            original_filename="OnePiece novel heroines Dub version_(HDRip).mkv",
+            template="{filename}",
+            resolution="1080",
+            extension="mkv"
+        )
+        self.assertEqual(formatted_hdrip, "OnePiece novel heroines Dub version_(1080p).mkv")
+
+        formatted_hdrip_underscore = format_renamed_file(
+            original_filename="OnePiece novel heroines Dub version_HDRip.mkv",
+            template="{filename}",
+            resolution="1080",
+            extension="mkv"
+        )
+        self.assertEqual(formatted_hdrip_underscore, "OnePiece novel heroines Dub version_1080p.mkv")
+
+        # Test combined resolution and rip tag replacement (e.g. 1080p.WEB-DL -> 720p)
+        formatted_combined = format_renamed_file(
+            original_filename="Movie.2024.1080p.WEB-DL.mkv",
+            template="{filename}",
+            resolution="720",
+            extension="mkv"
+        )
+        self.assertEqual(formatted_combined, "Movie.2024.720p.mkv")
+
     async def test_database_user_defaults_and_settings(self):
         # Mock Motor client and database
         mock_client = MagicMock()
