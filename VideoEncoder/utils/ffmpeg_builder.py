@@ -162,9 +162,24 @@ def format_renamed_file(
 
     # Smart quality tag replacement in original filename
     if res_str != "OG":
-        quality_pattern = r'\b(2160p|1080p|720p|576p|540p|480p|360p|240p|4k|2k)\b'
-        if re.search(quality_pattern, base_name, flags=re.IGNORECASE):
-            base_name = re.sub(quality_pattern, res_str, base_name, flags=re.IGNORECASE)
+        res_keywords = r'2160p|1080p|720p|576p|540p|480p|360p|240p|4k|2k'
+        rip_keywords = r'HDRip|HD-Rip|HD_Rip|WEBRip|WEB-Rip|WEB_Rip|WEB-DL|WEBDL|WEB_DL|BluRay|Bluray|BRRip|BR-Rip|BR_Rip|BDRip|BD-Rip|BD_Rip|HDTV|HDTVRip|DVDRip|DVD-Rip|DVD_Rip|CAMRip|HDCAM'
+
+        res_pattern = r'(?<![a-zA-Z0-9])(' + res_keywords + r')(?![a-zA-Z0-9])'
+        rip_pattern = r'(?<![a-zA-Z0-9])(' + rip_keywords + r')(?![a-zA-Z0-9])'
+
+        has_res = bool(re.search(res_pattern, base_name, flags=re.IGNORECASE))
+        has_rip = bool(re.search(rip_pattern, base_name, flags=re.IGNORECASE))
+
+        if has_res and has_rip:
+            base_name = re.sub(res_pattern, res_str, base_name, flags=re.IGNORECASE)
+            base_name = re.sub(rf'[\(_\[.-]?\s*{rip_pattern}\s*[\)\].-]?', '', base_name, flags=re.IGNORECASE)
+            base_name = re.sub(r'\(\s*\)|\[\s*\]', '', base_name)
+            base_name = re.sub(r'([_.-])\1+', r'\1', base_name).strip(' ._-')
+        elif has_res:
+            base_name = re.sub(res_pattern, res_str, base_name, flags=re.IGNORECASE)
+        elif has_rip:
+            base_name = re.sub(rip_pattern, res_str, base_name, flags=re.IGNORECASE)
 
     if not template or template.strip() == "{filename}":
         out_name = f"{base_name}.{target_ext}"
