@@ -9,6 +9,19 @@ from ..display_progress import progress_for_hydrogram
 from ..encoding import get_duration, get_thumbnail, get_width_height
 
 
+async def _fileshare_link(log_msg):
+    """Build a bot deep link that serves the stored channel message on /start."""
+    if not log_msg:
+        return None
+    try:
+        me = await app.get_me()
+        if me and me.username:
+            return f"https://t.me/{me.username}?start=file_{log_msg.id}"
+    except Exception:
+        pass
+    return getattr(log_msg, "link", None)
+
+
 async def upload_to_tg(new_file, message, msg):
     # Variables
     c_time = time.time()
@@ -62,13 +75,13 @@ async def upload_video(message, msg, new_file, filename, c_time, thumb, duration
         except Exception:
             pass
 
-    link = getattr(resp, 'link', None) if resp else None
-    if not link and log_msg and getattr(log_msg, 'link', None):
-        link = log_msg.link
-    elif not link and resp:
-        if getattr(resp.chat, 'username', None):
+    # Prefer a FileShare deep link backed by the configured LOG_CHANNEL copy.
+    link = await _fileshare_link(log_msg)
+    if not link and resp:
+        link = getattr(resp, 'link', None)
+        if not link and getattr(resp.chat, 'username', None):
             link = f"https://t.me/{resp.chat.username}/{resp.id}"
-        else:
+        elif not link:
             chat_id_str = str(resp.chat.id).replace('-100', '')
             link = f"https://t.me/c/{chat_id_str}/{resp.id}"
 
@@ -91,13 +104,13 @@ async def upload_doc(message, msg, c_time, filename, new_file, thumb=None):
         except Exception:
             pass
 
-    link = getattr(resp, 'link', None) if resp else None
-    if not link and log_msg and getattr(log_msg, 'link', None):
-        link = log_msg.link
-    elif not link and resp:
-        if getattr(resp.chat, 'username', None):
+    # Prefer a FileShare deep link backed by the configured LOG_CHANNEL copy.
+    link = await _fileshare_link(log_msg)
+    if not link and resp:
+        link = getattr(resp, 'link', None)
+        if not link and getattr(resp.chat, 'username', None):
             link = f"https://t.me/{resp.chat.username}/{resp.id}"
-        else:
+        elif not link:
             chat_id_str = str(resp.chat.id).replace('-100', '')
             link = f"https://t.me/c/{chat_id_str}/{resp.id}"
 

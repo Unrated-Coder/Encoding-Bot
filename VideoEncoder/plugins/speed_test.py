@@ -52,7 +52,7 @@ async def speedtest_handler(_, message):
             icon="🚀",
         )
         await msg.delete()
-        
+
         photo_url = result.get('share')
         if photo_url:
             try:

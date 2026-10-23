@@ -120,7 +120,7 @@ BOT_TOKEN=123456789:ABCdefGHIjklMNOpqr   # Obtained via @BotFather
 # ── Permissions & Logging ───────────────────────────────────
 OWNER_ID=123456789                       # Master Administrator ID
 SUDO_USERS=987654321 1122334455          # Space-separated Administrator IDs
-LOG_CHANNEL=-1001234567890               # Audit logging channel ID
+LOG_CHANNEL=-1007273593616               # File storage/log channel ID (change here when updating the channel)
 
 # ── Storage & Directories ───────────────────────────────────
 MONGO_URI=mongodb://localhost:27017/VideoEncoder

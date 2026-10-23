@@ -13,7 +13,7 @@ from psutil import (boot_time, cpu_count, cpu_percent, disk_usage,
 from hydrogram import Client, filters
 from hydrogram.types import Message
 
-from .. import botStartTime, download_dir, encode_dir
+from .. import botStartTime, download_dir, encode_dir, log
 from ..utils.database.access_db import db
 from ..utils.database.add_user import AddUserToDatabase
 from ..utils.display_progress import TimeFormatter, humanbytes
@@ -110,6 +110,27 @@ async def start_message(app, message):
     if not c:
         return
     await AddUserToDatabase(app, message)
+
+    # FileShare deep links use /start file_<message_id> and copy the stored
+    # file from LOG_CHANNEL (configured via config.env) to the requesting user.
+    payload = message.command[1] if len(message.command) > 1 else ''
+    if payload.startswith('file_'):
+        raw_message_id = payload[5:]
+        if not raw_message_id.isdigit():
+            await message.reply_text('Invalid file link.')
+            return
+        try:
+            await app.copy_message(
+                chat_id=message.chat.id,
+                from_chat_id=log,
+                message_id=int(raw_message_id),
+            )
+        except Exception:
+            await message.reply_text(
+                'Sorry, this file link is unavailable. Please contact the bot admin.'
+            )
+        return
+
     img = get_random_start_image()
     text = build_start_text(message.from_user.mention())
     try:
