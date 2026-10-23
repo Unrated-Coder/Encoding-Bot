@@ -53,12 +53,26 @@ async def upload_video(message, msg, new_file, filename, c_time, thumb, duration
         progress=progress_for_hydrogram,
         progress_args=("Uploading ...", msg, c_time)
     )
+    log_msg = None
     if resp:
-        await app.send_video(log, resp.video.file_id, thumb=thumb,
-                             caption=filename, duration=duration,
-                             width=width, height=height, parse_mode=None)
+        try:
+            log_msg = await app.send_video(log, resp.video.file_id, thumb=thumb,
+                                 caption=filename, duration=duration,
+                                 width=width, height=height, parse_mode=None)
+        except Exception:
+            pass
 
-    return resp.link
+    link = getattr(resp, 'link', None) if resp else None
+    if not link and log_msg and getattr(log_msg, 'link', None):
+        link = log_msg.link
+    elif not link and resp:
+        if getattr(resp.chat, 'username', None):
+            link = f"https://t.me/{resp.chat.username}/{resp.id}"
+        else:
+            chat_id_str = str(resp.chat.id).replace('-100', '')
+            link = f"https://t.me/c/{chat_id_str}/{resp.id}"
+
+    return link
 
 
 async def upload_doc(message, msg, c_time, filename, new_file, thumb=None):
@@ -70,7 +84,21 @@ async def upload_doc(message, msg, c_time, filename, new_file, thumb=None):
         progress_args=("Uploading ...", msg, c_time)
     )
 
+    log_msg = None
     if resp:
-        await app.send_document(log, resp.document.file_id, thumb=thumb, caption=filename, parse_mode=None)
+        try:
+            log_msg = await app.send_document(log, resp.document.file_id, thumb=thumb, caption=filename, parse_mode=None)
+        except Exception:
+            pass
 
-    return resp.link
+    link = getattr(resp, 'link', None) if resp else None
+    if not link and log_msg and getattr(log_msg, 'link', None):
+        link = log_msg.link
+    elif not link and resp:
+        if getattr(resp.chat, 'username', None):
+            link = f"https://t.me/{resp.chat.username}/{resp.id}"
+        else:
+            chat_id_str = str(resp.chat.id).replace('-100', '')
+            link = f"https://t.me/c/{chat_id_str}/{resp.id}"
+
+    return link
